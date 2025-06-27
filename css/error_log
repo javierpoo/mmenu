@@ -1,0 +1,2 @@
+[07-May-2021 14:23:19 America/Santiago] PHP Warning:  Unknown: open_basedir restriction in effect. File(/var/cpanel/php/sessions/ea-php56) is not within the allowed path(s): (/home/:/tmp:/usr/local/lib/:/var/cpanel/php/sessions/ea-php74) in Unknown on line 0
+[26-Jul-2021 09:43:31 America/Santiago] PHP Warning:  Unknown: open_basedir restriction in effect. File(/var/cpanel/php/sessions/ea-php56) is not within the allowed path(s): (/home/:/tmp:/usr/local/lib/:/var/cpanel/php/sessions/ea-php74) in Unknown on line 0
