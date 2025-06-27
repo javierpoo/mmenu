@@ -4,7 +4,7 @@ require_once( dirname( __FILE__ ) . '/mm_adminpage.php' );
 class MmenuBackend extends MmAdminPage {
 	
 	protected $name			= 'mmenu';
-	protected $version 		= '2.7.4';
+	protected $version 		= '2.7.5';
 	protected $screen_id 	= 'toplevel_page_mmenu';
 
 	protected $options = array(
@@ -71,7 +71,7 @@ class MmenuBackend extends MmAdminPage {
 		)
 	);
 
-	private $license_check_url  = 'http://mmenu.frebsite.nl/inc/__wp__update.php';
+	private $license_check_url  = 'https://mmenu.frebsite.nl/inc/__wp__update.php';
 	private $get_license_text 	= '';
 
 
@@ -177,15 +177,17 @@ class MmenuBackend extends MmAdminPage {
 
 	    //	Save updated options
 		if ( $preview || $updated )
-		{
-			foreach( $this->options as $option => $suboptions )
-			{
-				if ( isset( $_POST[ $option ] ) )
-				{
-					update_option( $option, $_POST[ $option ] );
-				}
-			}
-		}
+                {
+                        foreach( $this->options as $option => $suboptions )
+                        {
+                                if ( isset( $_POST[ $option ] ) )
+                                {
+                                        $value = wp_unslash( $_POST[ $option ] );
+                                        $value = $this->sanitize_input_array( $value );
+                                        update_option( $option, $value );
+                                }
+                        }
+                }
 
 		//	Get options
 		$mm_setup 			= get_option( 'mm_setup'			, array() );
@@ -392,7 +394,7 @@ class MmenuBackend extends MmAdminPage {
 
 <pre>&lt;a id="my-button" href="#my-menu"&gt;open menu&lt;/a&gt;</pre>
 
-				<p>' . __( 'If it doesn\'t yet look like a hamburger icon, you\'ll have to <a target="_blank" rel="noopener" href="http://css-tricks.com/three-line-menu-navicon">do that yourself</a>.', 'mmenu' ) . '</p>',
+				<p>' . __( 'If it doesn\'t yet look like a hamburger icon, you\'ll have to <a target="_blank" rel="noopener" href="https://css-tricks.com/three-line-menu-navicon">do that yourself</a>.', 'mmenu' ) . '</p>',
 			'explanation'
 		);
 		$this->echo_form_table_closer();
@@ -430,7 +432,7 @@ class MmenuBackend extends MmAdminPage {
 			$this->echo_form_table_row(
 				'',
 				'<p>' . __( 'The mmenu WordPress plugin is free to use for personal or non-profit usage. You can purchase a license if you want to use it in a commercial project (including sites, themes and apps you plan to sell).', 'mmenu' ) . '</p>' .
-				'<p>' . __( 'If you do not yet have a license, please purchase one from <a href="http://mmenu.frebsite.nl/wordpress-plugin/"  target="_blank">mmenu.frebsite.nl</a>.', 'mmenu' ) . '</p>',
+				'<p>' . __( 'If you do not yet have a license, please purchase one from <a href="https://mmenu.frebsite.nl/wordpress-plugin/"  target="_blank">mmenu.frebsite.nl</a>.', 'mmenu' ) . '</p>',
 				'explanation'
 			);
 			$this->echo_form_table_closer();
@@ -1027,7 +1029,7 @@ class MmenuBackend extends MmAdminPage {
 			<div class="buttons-button">
 				<div data-target="#' . $ostr . '_' . $id . '_icon' . '" class="button dashicons-picker' . $icn . '"></div>
 				' . $this->html_input( 	array( $optn, $ostr, $id . '_icon' )	, 'hidden' ) . '
-				' . $this->html_input( 	array( $optn, $ostr, $id . '_href' )	, 'text', 'placeholder="http://website.com"' ) . '
+				' . $this->html_input( 	array( $optn, $ostr, $id . '_href' )	, 'text', 'placeholder="https://website.com"' ) . '
 				' . $this->html_select( array( $optn, $ostr, $id . '_target' )	,
 						array(
 							'_self'		=> '_self',
@@ -1107,11 +1109,34 @@ class MmenuBackend extends MmAdminPage {
 	/*
 		Save the frontend .js and .css file
 	*/
-	protected function sanitizeStr( $str )
-	{
-		$str = str_replace( "'", "\'", $str );
-		return $str;
-	}
+        protected function sanitizeStr( $str )
+        {
+                $str = str_replace( "'", "\'", $str );
+                return $str;
+        }
+
+       protected function sanitize_input_array( $arr )
+       {
+               foreach ( $arr as $k => $v )
+               {
+                       if ( is_array( $v ) )
+                       {
+                               $arr[ $k ] = $this->sanitize_input_array( $v );
+                       }
+                       else
+                       {
+                               if ( strpos( $k, '_html' ) !== false )
+                               {
+                                       $arr[ $k ] = wp_kses_post( $v );
+                               }
+                               else
+                               {
+                                       $arr[ $k ] = sanitize_text_field( $v );
+                               }
+                       }
+               }
+               return $arr;
+       }
 	protected function saveFrontend( $fileAffix = '' )
 	{
 		$mm = array();
